@@ -17,10 +17,17 @@ export async function ensureFileIndexes(
     // Ignore if index doesn't exist
   }
 
+  try {
+    await collection.dropIndex("uniq_sha256");
+  } catch (error: any) {
+    // Ignore if index doesn't exist
+  }
+
   // Create indexes with proper names
+  // SHA-256 index is NOT unique - allows tracking duplicate uploads
   await collection.createIndex(
     { sha256: 1 },
-    { unique: true, name: "uniq_sha256" }
+    { name: "idx_sha256" }
   );
 
   await collection.createIndex(

@@ -24,51 +24,23 @@ export async function createFileDocument(
 
   // Check for duplicates
   const duplicate = await findDuplicateFile(uploadResult.sha256);
-  if (duplicate) {
-    // File is a duplicate - create new metadata entry but mark as duplicate
-    const collection = getFileCollection();
-    const fileId = await generateUniqueFileId(fileIdExists);
-    const extension = path.extname(uploadResult.originalName).toLowerCase();
-
-    const fileDoc: FileDocument = {
-      fileId,
-      extension,
-      originalName: uploadResult.originalName,
-      storedName: duplicate.storedName, // Reuse existing stored file
-      mimeType: uploadResult.mimeType,
-      size: uploadResult.size,
-      sha256: uploadResult.sha256,
-      isTemporary,
-      expiresAt: expiresAt || null,
-      downloadCount: 0,
-      isDuplicate: true, // Mark as duplicate
-      createdAt: new Date(),
-    };
-
-    const result = await collection.insertOne(fileDoc);
-    return { ...fileDoc, _id: result.insertedId };
-  }
-
+  
   const collection = getFileCollection();
-
-  // Generate unique 5-character ID
   const fileId = await generateUniqueFileId(fileIdExists);
-
-  // Extract file extension
   const extension = path.extname(uploadResult.originalName).toLowerCase();
 
   const fileDoc: FileDocument = {
     fileId,
     extension,
     originalName: uploadResult.originalName,
-    storedName: uploadResult.storedName,
+    storedName: duplicate ? duplicate.storedName : uploadResult.storedName, // Reuse storage if duplicate
     mimeType: uploadResult.mimeType,
     size: uploadResult.size,
     sha256: uploadResult.sha256,
     isTemporary,
     expiresAt: expiresAt || null,
     downloadCount: 0,
-    isDuplicate: false, // Original upload
+    isDuplicate: !!duplicate, // Mark as duplicate if exists
     createdAt: new Date(),
   };
 
