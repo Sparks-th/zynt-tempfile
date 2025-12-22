@@ -1,5 +1,6 @@
 import { getFileCollection, FileDocument } from "../../files/models/file.model";
 import { deleteFromS3 } from "../../../storage/storage.service";
+import { Sort } from "mongodb";
 
 interface FileFilters {
   isTemporary?: boolean;
@@ -68,7 +69,7 @@ export async function getFiles(
   // Build sort
   const sortField = pagination.sortBy || "createdAt";
   const sortDirection = pagination.sortOrder === "asc" ? 1 : -1;
-  const sort = { [sortField]: sortDirection };
+  const sort: Sort = { [sortField]: sortDirection };
 
   // Execute query
   const skip = (pagination.page - 1) * pagination.limit;
