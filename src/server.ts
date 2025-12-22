@@ -1,5 +1,9 @@
 import dotenv from "dotenv";
-dotenv.config();
+
+// Only load .env in development
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 import { buildApp } from "./app";
 import { connectDB } from "./db/mongo";
