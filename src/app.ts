@@ -18,7 +18,7 @@ export function buildApp() {
       const allowedOrigins = [
         'https://zynt-tmp.netlify.app',
         'http://localhost:3000',
-        'http://localhost:5173',
+        'https://tmp.zynt.me',
         'http://localhost:5174',
       ];
 
