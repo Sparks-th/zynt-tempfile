@@ -41,7 +41,19 @@ export async function uploadFileHandler(
       expiresAt,
     });
 
-    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    // Detect protocol and host from request headers, fallback to BASE_URL or localhost
+    const protocol =
+      (request.headers["x-forwarded-proto"] as string) ||
+      // @ts-ignore (Fastify may have request.protocol)
+      (request.protocol as string) ||
+      "http";
+    const host =
+      (request.headers["x-forwarded-host"] as string) ||
+      (request.headers["host"] as string);
+
+    const baseUrl = host
+      ? `${protocol}://${host}`
+      : process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
     const fileUrl = `${baseUrl}/f/${fileDoc.fileId}${fileDoc.extension}`;
 
     return reply.code(201).send({
@@ -61,7 +73,7 @@ export async function uploadFileHandler(
     });
   } catch (error: any) {
     request.log.error(error);
-    
+
     // Handle storage quota errors specifically
     if (error.message.includes("Storage quota exceeded")) {
       return reply.code(507).send({
